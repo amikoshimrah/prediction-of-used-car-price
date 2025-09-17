@@ -22,7 +22,7 @@ st.write("Enter the details of the car to predict its selling price.")
 brand = st.selectbox("Car Brand", brands)
 year = st.number_input("Year of Purchase", min_value=1990, max_value=2025, step=1)
 present_price = st.number_input("Present Price (in Lakhs)", min_value=0.0, step=0.1, format="%.2f")
-kms_driven = st.number_input("Kilometers Driven", min_value=0, step=500)
+kms_driven = st.number_input("Kilometers Driven", min_value=0, step=500)   # ✅ correct variable
 owner = st.selectbox("Number of Previous Owners", [0, 1, 2, 3])
 
 fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "CNG"])
@@ -46,7 +46,7 @@ else:
     brand_vector = np.zeros(len(brand_dummies.columns))
     brand_vector[list(brand_dummies.columns).index(brand)] = 1
 
-# Combine features
+# ✅ Fixed: using kms_driven (not km_driven)
 features = np.array([[present_price, kms_driven, owner, car_age,
                       fuel_diesel, fuel_petrol, seller_individual, transmission_manual, *brand_vector]])
 
