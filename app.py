@@ -42,8 +42,7 @@ car_age = current_year - year
 
 # Other details
 km_driven_raw = st.sidebar.number_input("Kilometers Driven", min_value=0, max_value=1_000_000, step=500, value=50000)
-# Apply log1p transformation here
-km_driven = np.log1p(km_driven_raw)
+
 
 fuel = st.sidebar.selectbox("Fuel Type", sorted(df["fuel"].dropna().unique().tolist()))
 seller_type = st.sidebar.selectbox("Seller Type", sorted(df["seller_type"].dropna().unique().tolist()))
