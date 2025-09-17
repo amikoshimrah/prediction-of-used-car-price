@@ -9,9 +9,9 @@ import datetime
 @st.cache_data
 def load_data():
     df = pd.read_csv("CAR DETAILS FROM CAR DEKHO.csv")
-    # Extract brand (first word) and model (rest of the string)
+    # Extract brand and model_name from 'name'
     df['brand'] = df['name'].apply(lambda x: str(x).split(" ")[0])
-    df['car_model'] = df['name'].apply(lambda x: " ".join(str(x).split(" ")[1:]))
+    df['model_name'] = df['name'].apply(lambda x: " ".join(str(x).split(" ")[1:]))
     return df
 
 # -------------------------
@@ -37,8 +37,8 @@ def main():
 
     # Dropdowns for brand & model
     brand = st.selectbox("Select Brand", sorted(df['brand'].unique()))
-    model_options = sorted(df[df['brand'] == brand]['car_model'].unique())
-    car_model = st.selectbox("Select Model", model_options)
+    model_options = sorted(df[df['brand'] == brand]['model_name'].unique())
+    model_name = st.selectbox("Select Model", model_options)
 
     # Other features
     year = st.slider("Year of Purchase", int(df['year'].min()), int(df['year'].max()), 2015)
@@ -53,17 +53,22 @@ def main():
     owner = st.selectbox("Owner", df['owner'].unique())
 
     if st.button("🔮 Predict Price"):
-        # Prepare input for model
+        # Prepare input for model (must match training features)
         input_data = pd.DataFrame({
-            "name": [f"{brand} {car_model}"],
-            "year": [year],
-            "car_age": [car_age],
+            "brand": [brand],
+            "model_name": [model_name],
+            "year": [year],          # keep 'year' if model trained on it
+            "car_age": [car_age],    # keep 'car_age' if model trained on it
             "km_driven": [km_driven],
             "fuel": [fuel],
             "seller_type": [seller_type],
             "transmission": [transmission],
             "owner": [owner],
         })
+
+        # Drop extra column if not used in training
+        expected_cols = model.feature_names_in_ if hasattr(model, "feature_names_in_") else input_data.columns
+        input_data = input_data[[col for col in expected_cols if col in input_data.columns]]
 
         # Make prediction
         try:
