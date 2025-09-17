@@ -22,7 +22,7 @@ brands = sorted(df["brand"].unique())
 # ===============================
 st.set_page_config(page_title="Used Car Price Predictor", layout="centered")
 
-st.title("🚗 Used Car Price Prediction App (log1p on km_driven)")
+st.title("🚗 Used Car Price Prediction App")
 st.write("Enter the details of the car to predict its selling price.")
 
 # ===============================
@@ -56,7 +56,7 @@ owner = st.sidebar.selectbox("Owner", sorted(df["owner"].dropna().unique().tolis
 input_data = pd.DataFrame({
     "name": [car_model],
     "brand": [brand],
-    "km_driven": [km_driven],  # log1p-transformed
+    "km_driven": [km_driven],
     "fuel": [fuel],
     "seller_type": [seller_type],
     "transmission": [transmission],
@@ -77,8 +77,4 @@ if st.sidebar.button("Predict Price"):
     except Exception as e:
         st.error(f"❌ Prediction failed. Error: {e}")
 
-# ===============================
-# Optional: Dataset Preview
-# ===============================
-with st.expander("🔍 See Sample Dataset"):
-    st.dataframe(df.head(20))
+
