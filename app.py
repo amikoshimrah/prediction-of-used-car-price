@@ -23,8 +23,7 @@ brands = sorted(df["brand"].unique())
 st.set_page_config(page_title="Used Car Price Predictor", layout="centered")
 
 st.title("🚗 Used Car Price Prediction App")
-st.write("The predicted selling price is expected to be on higher side as 
-        Some high prices might be luxury cars.")
+st.write("The predicted selling price is expected to be on higher side as some high prices luxury cars included.")
 
 # ===============================
 # Sidebar Inputs
