@@ -58,6 +58,6 @@ if st.button("Predict Price"):
         if prediction < 0:
             st.error("Sorry, this car cannot be sold.")
         else:
-            st.success(f"Estimated Selling Price: ₹ {prediction:.2f} Lakhs")
+            st.success(f"Estimated Selling Price: ₹ {prediction:.2f} ")
     except Exception as e:
         st.error(f"Prediction failed: {e}")
