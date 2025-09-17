@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import pandas as pd
+from datetime import datetime
 
 # Load trained pipeline
 model = pickle.load(open("used_car_price_model.pkl", "rb"))
@@ -26,17 +27,18 @@ brand = st.selectbox("Car Brand", brands)
 filtered_models = sorted(data[data['brand'] == brand]['model_name'].unique())
 model_name = st.selectbox("Car Model", filtered_models)
 
-year = st.number_input("Year of Purchase", min_value=1990, max_value=2025, step=1)
+year = st.number_input("Year of Purchase", min_value=1990, max_value=datetime.now().year, step=1)
 kms_driven = st.number_input("Kilometers Driven", min_value=0, step=500)
-owner = st.selectbox("Owner", data['owner'].unique())  # use same unique values from dataset
+owner = st.selectbox("Owner", data['owner'].unique())
 fuel_type = st.selectbox("Fuel Type", data['fuel'].unique())
 seller_type = st.selectbox("Seller Type", data['seller_type'].unique())
 transmission = st.selectbox("Transmission", data['transmission'].unique())
 
-# --- Build 'name' column exactly like dataset ---
+# --- Build columns ---
 full_name = f"{brand} {model_name}"
+car_age = datetime.now().year - year
 
-# Create input dataframe with SAME columns as training dataset
+# Create input dataframe with ALL columns the pipeline expects
 input_df = pd.DataFrame([{
     "name": full_name,
     "year": year,
@@ -44,7 +46,9 @@ input_df = pd.DataFrame([{
     "fuel": fuel_type,
     "seller_type": seller_type,
     "transmission": transmission,
-    "owner": owner
+    "owner": owner,
+    "brand": brand,          # ✅ added engineered feature
+    "car_age": car_age       # ✅ added engineered feature
 }])
 
 # --- Prediction ---
