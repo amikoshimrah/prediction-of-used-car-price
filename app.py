@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
+from datetime import datetime
 
 # ===============================
 # Load Saved Model & Dataset
@@ -8,23 +10,19 @@ import pickle
 with open("used_car_price_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-# Load dataset for brand/model dropdowns
+# Load dataset for dropdowns
 df = pd.read_csv("CAR DETAILS FROM CAR DEKHO.csv")
 
 # Extract brand from name
 df["brand"] = df["name"].apply(lambda x: str(x).split()[0])
 brands = sorted(df["brand"].unique())
 
-# Required features (must match training)
-required_features = ["name", "brand", "km_driven", "fuel", "seller_type",
-                     "transmission", "owner", "car_age"]
-
 # ===============================
 # Streamlit Config
 # ===============================
 st.set_page_config(page_title="Used Car Price Predictor", layout="centered")
 
-st.title("🚗 Used Car Price Prediction App")
+st.title("🚗 Used Car Price Prediction App (log1p on km_driven)")
 st.write("Enter the details of the car to predict its selling price.")
 
 # ===============================
@@ -38,12 +36,15 @@ models_for_brand = sorted(df[df["brand"] == brand]["name"].unique())
 car_model = st.sidebar.selectbox("Select Model", models_for_brand)
 
 # Year → Car Age
-year = st.sidebar.number_input("Year of Manufacture", min_value=1990, max_value=2025, step=1, value=2015)
-current_year = 2025
+current_year = datetime.now().year
+year = st.sidebar.number_input("Year of Manufacture", min_value=1990, max_value=current_year, step=1, value=2015)
 car_age = current_year - year
 
 # Other details
-km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0, max_value=1000000, step=500, value=50000)
+km_driven_raw = st.sidebar.number_input("Kilometers Driven", min_value=0, max_value=1_000_000, step=500, value=50000)
+# Apply log1p transformation here
+km_driven = np.log1p(km_driven_raw)
+
 fuel = st.sidebar.selectbox("Fuel Type", sorted(df["fuel"].dropna().unique().tolist()))
 seller_type = st.sidebar.selectbox("Seller Type", sorted(df["seller_type"].dropna().unique().tolist()))
 transmission = st.sidebar.selectbox("Transmission", sorted(df["transmission"].dropna().unique().tolist()))
@@ -55,7 +56,7 @@ owner = st.sidebar.selectbox("Owner", sorted(df["owner"].dropna().unique().tolis
 input_data = pd.DataFrame({
     "name": [car_model],
     "brand": [brand],
-    "km_driven": [km_driven],   # raw value, pipeline applies log1p
+    "km_driven": [km_driven],  # log1p-transformed
     "fuel": [fuel],
     "seller_type": [seller_type],
     "transmission": [transmission],
@@ -63,15 +64,12 @@ input_data = pd.DataFrame({
     "car_age": [car_age]
 })
 
-# Reorder columns
-input_data = input_data[required_features]
-
 # ===============================
 # Prediction
 # ===============================
 if st.sidebar.button("Predict Price"):
     try:
-        prediction = model.predict(input_data)[0]   # already in rupees because of TransformedTargetRegressor
+        prediction = model.predict(input_data)[0]
         if prediction < 0:
             st.error("⚠️ Model predicted a negative value. Please check training or input ranges.")
         else:
