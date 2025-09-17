@@ -16,7 +16,7 @@ df["brand"] = df["name"].apply(lambda x: str(x).split()[0])
 brands = sorted(df["brand"].unique())
 
 # Required features (must match training pipeline)
-required_features = ["name", "km_driven", "fuel", "seller_type",
+required_features = ["name", "brand", "km_driven", "fuel", "seller_type",
                      "transmission", "owner", "car_age"]
 
 # ===============================
@@ -57,6 +57,7 @@ owner = st.sidebar.selectbox("Owner", ["First Owner", "Second Owner", "Third Own
 # ===============================
 input_data = pd.DataFrame({
     "name": [car_model],
+    "brand": [brand],
     "km_driven": [km_driven],
     "fuel": [fuel],
     "seller_type": [seller_type],
